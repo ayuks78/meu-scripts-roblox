@@ -1,20 +1,24 @@
--- [[ PROTEÇÃO ANTI-DETECÇÃO E CRASH ]]
-if not game:IsLoaded() then game.Loaded:Wait() end
+-- [[ 1. INICIALIZAÇÃO SEGURA ]]
+if not game:IsLoaded() then 
+    pcall(function() game.Loaded:Wait() end)
+end
 
--- [[ CARREGA A INTERFACE ]]
+-- [[ 2. CARREGA A BIBLIOTECA ]]
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+-- [[ 3. CRIA A JANELA ]]
 local Window = OrionLib:MakeWindow({
     Name = "Entrenched Neural v2", 
     HidePremium = false, 
-    SaveConfig = true, 
-    ConfigFolder = "AcodeScripts"
+    SaveConfig = false, -- Deixe False para evitar erro no Android
+    IntroText = "Carregando Scripts..."
 })
 
--- [[ VARIÁVEIS DE CONTROLE ]]
+-- [[ 4. VARIÁVEIS ]]
 _G.HitboxEnabled = false
 _G.HitboxSize = 5
 
--- [[ ABA DE COMBATE ]]
+-- [[ 5. ABA E BOTÕES ]]
 local Tab = Window:MakeTab({
     Name = "Combate",
     Icon = "rbxassetid://4483345998"
@@ -36,19 +40,17 @@ Tab:AddSlider({
     end    
 })
 
--- [[ LOOP DE EXECUÇÃO EM SEGUNDO PLANO ]]
+-- [[ 6. LOOP DA HITBOX ]]
 task.spawn(function()
     while task.wait(1) do
         if _G.HitboxEnabled then
             for _, v in pairs(game:GetService("Players"):GetPlayers()) do
-                -- Verifica se é inimigo e se o personagem está vivo/carregado
                 if v ~= game.Players.LocalPlayer and v.Team ~= game.Players.LocalPlayer.Team then
                     pcall(function()
-                        local character = v.Character
-                        if character and character:FindFirstChild("Head") then
-                            local head = character.Head
+                        local head = v.Character:FindFirstChild("Head")
+                        if head then
                             head.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
-                            head.Transparency = 0.6 
+                            head.Transparency = 0.6
                             head.CanCollide = false
                         end
                     end)
